@@ -1,9 +1,13 @@
 import express from "express";
 import router from "./routes/api";
+import connectDB from "./utils/connectDB";
 
 
 async function init() {
     try {
+        const result = await connectDB();
+        console.log(result);
+        
         const app = express();
 
         const PORT = 8001;
