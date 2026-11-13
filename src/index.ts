@@ -1,26 +1,25 @@
 import express from "express";
 import router from "./routes/api";
 import connectDB from "./utils/connectDB";
+import cors from "cors";
 
 
-async function init() {
-    try {
-        const result = await connectDB();
-        console.log(result);
-        
-        const app = express();
 
-        const PORT = 8001;
+const app = express();
+const PORT = Number(process.env.PORT) || 8001;
 
-        app.use("/", router);
+app.use(cors());
+app.use(express.json());
+app.use("/", router);
 
-        app.listen(PORT, () => {
-            console.log(`Server is running on: http://localhost:${PORT}`)
-        })
-        
-    } catch (error) {
-        console.error(error);
-    }
-}
+const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server is running on: http://127.0.0.1:${PORT}`);
+    void connectDB()
+        .then((message) => console.log(message))
+        .catch((error: unknown) => console.error("Database connection failed:", error));
+});
 
-init()
+server.on("error", (error: NodeJS.ErrnoException) => {
+    console.error(`HTTP server failed to listen on port ${PORT}:`, error.message);
+    process.exitCode = 1;
+});
